@@ -1,3 +1,7 @@
+Restaurant Reservation and Review Platform
+
+A full-stack MERN web application that allows users to discover restaurants, check table availability, make reservations, share dining experiences through reviews, and receive personalized restaurant recommendations.
+
 User Authentication
 User registration and login.
 JWT-based authentication.
