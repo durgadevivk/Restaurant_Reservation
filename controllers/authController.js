@@ -12,7 +12,7 @@ const authController = {
     // REGISTER USER
     register: async (req, res) => {
         try {
-            const { name, email, password } = req.body;
+            const { name, email, password,role } = req.body;
 
             // Check required fields
             if (!name || !email || !password) {
@@ -40,7 +40,8 @@ const authController = {
             const newUser = new User({
                 name,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                 role: role || 'user'
             });
 
             await newUser.save();
