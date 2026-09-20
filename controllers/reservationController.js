@@ -229,6 +229,85 @@ const reservationController = {
       error: error.message,
     });
     }
+  },
+  // Admin - Confirm reservation
+confirmReservation: async (req, res) => {
+  try {
+    const reservation = await Reservation.findById(req.params.id);
+
+    if (!reservation) {
+      return res.status(404).json({
+        message: "Reservation not found",
+      });
+    }
+
+    if (reservation.status === "cancelled") {
+      return res.status(400).json({
+        message: "Cancelled reservation cannot be confirmed",
+      });
+    }
+
+    reservation.status = "confirmed";
+
+    await reservation.save();
+
+    const updatedReservation = await Reservation.findById(
+      reservation._id
+    )
+      .populate("user", "name email")
+      .populate("restaurant", "name location cuisine");
+
+    res.status(200).json({
+      message: "Reservation confirmed successfully",
+      reservation: updatedReservation,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to confirm reservation",
+      error: error.message,
+    });
   }
+},
+// Admin - Reject reservation
+rejectReservation: async (req, res) => {
+  try {
+    const reservation = await Reservation.findById(req.params.id);
+
+    if (!reservation) {
+      return res.status(404).json({
+        message: "Reservation not found",
+      });
+    }
+
+    if (reservation.status === "cancelled") {
+      return res.status(400).json({
+        message: "Cancelled reservation cannot be rejected",
+      });
+    }
+
+    reservation.status = "rejected";
+
+    await reservation.save();
+
+    const updatedReservation = await Reservation.findById(
+      reservation._id
+    )
+      .populate("user", "name email")
+      .populate("restaurant", "name location cuisine");
+
+    res.status(200).json({
+      message: "Reservation rejected successfully",
+      reservation: updatedReservation,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to reject reservation",
+      error: error.message,
+    });
+  }
+}
+
+
+
 };
 module.exports = reservationController;
