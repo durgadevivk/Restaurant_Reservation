@@ -147,5 +147,69 @@ const reservationController = {
       });
     }
   },
+  //update reservation
+  updateReservation:async(req,res)=>{
+    try{
+       const { date, time, partySize } = req.body;
+       const reservation = await Reservation.findOne({
+      _id: req.params.id,
+      user: req.userId,
+    });
+    if(!reservation){
+      return res.status(404).json({
+        message: "Reservation not found",
+      });
+    }
+    //dont allow updating cancelled reservation
+      if (reservation.status === "cancelled") {
+      return res.status(400).json({
+        message: "Cancelled reservation cannot be updated",
+      });
+    }
+  // Check availability for the new booking
+    const existingReservations = await Reservation.find({
+      restaurant: reservation.restaurant,
+      date: new Date(date),
+      time: time,
+      status: "confirmed",
+      _id: { $ne: reservation._id },
+    });
+    const restaurant=await Restaurant.findById(reservation.restaurant);
+    if(!restaurant){
+      return res.status(404).json({
+        message: "Restaurant not found",
+      });
+    }
+     const bookedSeats = existingReservations.reduce(
+      (total, reservation) => total + reservation.partySize,
+      0
+    );
+     const availableSeats =
+      restaurant.totalTables * 4 - bookedSeats;
+      if (availableSeats < Number(partySize)) {
+      return res.status(400).json({
+        message: "Not enough tables available for the updated reservation",
+      });
+    }
+    reservation.date = date;
+    reservation.time = time;
+    reservation.partySize = partySize;
+
+    await reservation.save();
+    const updatedReservation = await Reservation.findById(
+      reservation._id
+    ).populate("restaurant", "name location cuisine imageUrl");
+
+    res.status(200).json({
+      message: "Reservation updated successfully",
+      reservation: updatedReservation,
+    });
+    }catch(error){
+      return res.status(500).json({
+      message: "Failed to update reservation",
+      error: error.message,
+    });
+    }
+  }
 };
 module.exports = reservationController;

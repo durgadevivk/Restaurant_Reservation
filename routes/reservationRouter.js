@@ -5,6 +5,7 @@ const {
   createReservation,
   getUserReservations,
   cancelReservation,
+  updateReservation
 } = require("../controllers/reservationController.js");
 
 const { isAuthenticated } = require("../middlewares/auth.js");
@@ -22,5 +23,7 @@ reservationRouter.get("/my", isAuthenticated, getUserReservations);
 
 // Cancel reservation
 reservationRouter.patch("/:id", isAuthenticated, cancelReservation);
+//update reservation
+reservationRouter.put('/:id',isAuthenticated,updateReservation)
 
 module.exports = reservationRouter;
