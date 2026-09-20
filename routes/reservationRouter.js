@@ -5,10 +5,11 @@ const {
   createReservation,
   getUserReservations,
   cancelReservation,
-  updateReservation
+  updateReservation,
+  admingetAllReservation
 } = require("../controllers/reservationController.js");
 
-const { isAuthenticated } = require("../middlewares/auth.js");
+const { isAuthenticated,allowRoles } = require("../middlewares/auth.js");
 
 const reservationRouter=express.Router();
 
@@ -20,6 +21,13 @@ reservationRouter.post("/", isAuthenticated, createReservation);
 
 // Get logged-in user's reservations
 reservationRouter.get("/my", isAuthenticated, getUserReservations);
+//admin get all reservations
+reservationRouter.get(
+  "/admin/all",
+  isAuthenticated,
+  allowRoles(["admin"]),
+  admingetAllReservation
+);
 
 // Cancel reservation
 reservationRouter.patch("/:id", isAuthenticated, cancelReservation);

@@ -8,6 +8,7 @@ const restaurantRouter=express.Router();
 restaurantRouter.post('/', isAuthenticated,
     allowRoles(['restaurant_owner', 'admin']),createRestaurant);
 restaurantRouter.get('/',GetAllRestaurants);
+
 restaurantRouter.get('/:id',GetRestaurantByID);
 restaurantRouter.put('/:id',  isAuthenticated,
     allowRoles(['restaurant_owner', 'admin']),updateRestaurant);

@@ -210,6 +210,25 @@ const reservationController = {
       error: error.message,
     });
     }
+  },
+  //admingetAllReservation
+  admingetAllReservation:async(req,res)=>{
+    try{
+    const reservations = await Reservation.find()
+      .populate("user", "name email")
+      .populate("restaurant", "name location cuisine")
+      .sort({ date: 1, time: 1 });
+
+    res.status(200).json({
+      message: "All reservations fetched successfully",
+      reservations,
+    });
+    }catch(error){
+       res.status(500).json({
+      message: "Failed to fetch all reservations",
+      error: error.message,
+    });
+    }
   }
 };
 module.exports = reservationController;
