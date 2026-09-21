@@ -6,6 +6,7 @@ const authRouter = require('./routes/authRouter');
 const restaurantRouter = require('./routes/restaurantRouter');
 
 const reservationRouter = require('./routes/reservationRouter');
+const reviewRouter=require('./routes/reviewRouter');
 //create app
 const app=express();
 //parse cookie
@@ -20,5 +21,5 @@ app.use(cors({
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/restaurant', restaurantRouter);
 app.use('/api/v1/reservation', reservationRouter);
-
+app.use('/api/v1/review', reviewRouter);
 module.exports = app;
