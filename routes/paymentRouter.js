@@ -1,7 +1,7 @@
 const express = require("express");
 
 const {
-    createOrder
+    createOrder,verifyPayment
 } = require("../controllers/paymentController");
 
 const { isAuthenticated } = require("../middlewares/auth");
@@ -12,6 +12,11 @@ paymentRouter.post(
     "/create-order",
     isAuthenticated,
     createOrder
+);
+paymentRouter.post(
+    "/verify",
+    isAuthenticated,
+    verifyPayment
 );
 
 module.exports = paymentRouter;
