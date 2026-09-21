@@ -44,22 +44,59 @@ const restaurantController={
             });
         }catch(error){
             return res.status(500).json({
-                error: e.message
+                error: error.message
             });
         }
     },
-    GetAllRestaurants:async(req,res)=>{
-        try{
-            const restaurants = await Restaurant.find();
-            return res.status(200).json({
-                restaurants
-            });
-        }catch(error){
-            return res.status(500).json({
-                error: e.message
-            });
+    GetAllRestaurants: async (req, res) => {
+    try {
+
+        const { search, cuisine, location, priceRange } = req.query;
+
+        // Build filter object
+        const filter = {};
+
+        // Search by restaurant name
+        if (search) {
+            filter.name = {
+                $regex: search,
+                $options: "i"
+            };
         }
-    },
+
+        // Filter by cuisine
+        if (cuisine) {
+            filter.cuisine = {
+                $regex: cuisine,
+                $options: "i"
+            };
+        }
+
+        // Filter by location
+        if (location) {
+            filter.location = {
+                $regex: location,
+                $options: "i"
+            };
+        }
+
+        // Filter by price range
+        if (priceRange) {
+            filter.priceRange = priceRange;
+        }
+
+        const restaurants = await Restaurant.find(filter);
+
+        return res.status(200).json({
+            restaurants
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            error: error.message
+        });
+    }
+},
     GetRestaurantByID:async(req,res)=>{
         try{
              const { id } = req.params;
@@ -78,7 +115,7 @@ const restaurantController={
 
         }catch(error){
             return res.status(500).json({
-                error: e.message
+                error: error.message
             });
         }
     },
@@ -108,7 +145,7 @@ const restaurantController={
 
         }catch(error){
             return res.status(500).json({
-                error: e.message
+                error: error.message
             });
         }
     },
@@ -130,7 +167,7 @@ const restaurantController={
 
         }catch(error){
             return res.status(500).json({
-                error: e.message
+                error: error.message
             });
         }
     },
