@@ -81,7 +81,7 @@ const reservationController = {
         date,
         time,
         partySize,
-        status: "confirmed",
+        status: "pending",
       });
       // Fetch reservation with restaurant details
       const populatedReservation = await Reservation.findById(

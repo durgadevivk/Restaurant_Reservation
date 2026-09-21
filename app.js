@@ -7,6 +7,7 @@ const restaurantRouter = require('./routes/restaurantRouter');
 
 const reservationRouter = require('./routes/reservationRouter');
 const reviewRouter=require('./routes/reviewRouter');
+const paymentRouter = require('./routes/paymentRouter');
 //create app
 const app=express();
 //parse cookie
@@ -22,4 +23,6 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/restaurant', restaurantRouter);
 app.use('/api/v1/reservation', reservationRouter);
 app.use('/api/v1/review', reviewRouter);
+app.use('/api/v1/payment', paymentRouter);
+
 module.exports = app;

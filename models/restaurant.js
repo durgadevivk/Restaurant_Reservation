@@ -49,7 +49,41 @@ const restaurantSchema = new mongoose.Schema({
         default: 0,
         min: 0,
         max: 5
+    },
+    menu: {
+  type: [
+    {
+      name: {
+        type: String,
+        required: true
+      },
+      price: {
+        type: Number,
+        required: true
+      },
+      description: {
+        type: String,
+        default: ""
+      }
     }
+  ],
+  default: []
+},
+
+openingHours: {
+  type: String,
+  default: ""
+},
+
+contactNumber: {
+  type: String,
+  default: ""
+},
+owner: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  required: true
+}
 
 }, {
     timestamps: true
