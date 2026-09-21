@@ -141,7 +141,41 @@ const reviewController = {
         error: error.message
       });
     }
+  },
+  ownerResponse: async (req, res) => {
+  try {
+    const { response } = req.body;
+
+    if (!response) {
+      return res.status(400).json({
+        message: "Response is required"
+      });
+    }
+
+    const review = await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({
+        message: "Review not found"
+      });
+    }
+
+    review.ownerResponse = response;
+
+    await review.save();
+
+    res.status(200).json({
+      message: "Owner response added successfully",
+      review
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to add owner response",
+      error: error.message
+    });
   }
+},
 
 };
 

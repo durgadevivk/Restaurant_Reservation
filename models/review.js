@@ -30,7 +30,10 @@ const reviewSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-
+    ownerResponse: {
+    type: String,
+    default: ""
+},
     createdAt: {
         type: Date,
         default: Date.now

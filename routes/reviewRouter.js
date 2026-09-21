@@ -4,7 +4,8 @@ const {
   createReview,
   getRestaurantReviews,
   updateReview,
-  deleteReview
+  deleteReview,
+  ownerResponse
 } = require("../controllers/reviewController.js");
 
 const {
@@ -38,6 +39,12 @@ reviewRouter.delete(
   "/:id",
   isAuthenticated,
   deleteReview
+);
+//add owner response
+reviewRouter.patch(
+  "/:id/owner-response",
+  isAuthenticated,
+  ownerResponse
 );
 
 module.exports = reviewRouter;
