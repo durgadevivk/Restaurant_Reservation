@@ -41,64 +41,72 @@ const reservationController = {
   },
 
   createReservation: async (req, res) => {
-    try {
-      //required details extracting from request body
-      const { restaurantId, date, time, partySize } = req.body;
+  try {
+    // Required details extracting from request body
+    const { restaurantId, date, time, partySize } = req.body;
 
-      const userId = req.userId;
-      //finding restaurant by Id
-      const restaurant = await Restaurant.findById(restaurantId);
-      //if not exist return 404 error
-      if (!restaurant) {
-        return res.status(404).json({
-          message: "Restaurant not found",
-        });
-      }
-      //finding existing reservations
-      const existingReservations = await Reservation.find({
-        restaurant: restaurantId,
-        date: new Date(date),
-        time: time,
-        status: "confirmed",
-      });
-      //finding bookedseats
-      const bookedSeats = existingReservations.reduce(
-        (total, reservation) => total + reservation.partySize,
-        0,
-      );
-      //checking available seats
-      const availableSeats = restaurant.totalTables * 4 - bookedSeats;
+    const userId = req.userId;
 
-      if (availableSeats < partySize) {
-        return res.status(400).json({
-          message: "Not enough tables available",
-        });
-      }
-      //creating new reservation
-      const reservation = await Reservation.create({
-        user: userId,
-        restaurant: restaurantId,
-        date,
-        time,
-        partySize,
-        status: "pending",
-      });
-      // Fetch reservation with restaurant details
-      const populatedReservation = await Reservation.findById(
-        reservation._id,
-      ).populate("restaurant", "name");
+    // Finding restaurant by ID
+    const restaurant = await Restaurant.findById(restaurantId);
 
-      res.status(201).json({
-        message: "Reservation created successfully",
-        reservation,
-      });
-    } catch (error) {
-      res.status(500).json({
-        message: "Failed to create reservation",
-        error: error.message,
+    // If restaurant does not exist
+    if (!restaurant) {
+      return res.status(404).json({
+        message: "Restaurant not found",
       });
     }
-  },
+
+    // Finding existing confirmed reservations
+    const existingReservations = await Reservation.find({
+      restaurant: restaurantId,
+      date: new Date(date),
+      time: time,
+      status: "confirmed",
+    });
+
+    // Finding booked seats
+    const bookedSeats = existingReservations.reduce(
+      (total, reservation) => total + reservation.partySize,
+      0
+    );
+
+    // Checking available seats
+    const availableSeats = restaurant.totalTables * 4 - bookedSeats;
+
+    if (availableSeats < partySize) {
+      return res.status(400).json({
+        message: "Not enough tables available",
+      });
+    }
+
+    // Creating new reservation
+    const reservation = await Reservation.create({
+      user: userId,
+      restaurant: restaurantId,
+      date,
+      time,
+      partySize,
+      status: "pending",
+    });
+
+    // Fetch reservation with restaurant details
+    const populatedReservation = await Reservation.findById(
+      reservation._id
+    ).populate("restaurant", "name");
+
+    res.status(201).json({
+      message: "Reservation created successfully",
+      reservation: populatedReservation,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to create reservation",
+      error: error.message,
+    });
+  }
+},
   // Get user's reservations
   getUserReservations: async (req, res) => {
     try {

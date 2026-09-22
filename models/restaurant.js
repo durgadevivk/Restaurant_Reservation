@@ -50,6 +50,20 @@ const restaurantSchema = new mongoose.Schema({
         min: 0,
         max: 5
     },
+    dietaryOptions: {
+    type: [String],
+    default: []
+},
+
+ambiance: {
+    type: [String],
+    default: []
+},
+
+specialFeatures: {
+    type: [String],
+    default: []
+},
     menu: {
   type: [
     {

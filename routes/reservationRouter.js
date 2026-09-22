@@ -14,11 +14,18 @@ const { isAuthenticated,allowRoles } = require("../middlewares/auth.js");
 
 const reservationRouter=express.Router();
 
+reservationRouter.post("/test", (req, res) => {
+    console.log("RESERVATION ROUTER TEST REACHED");
+    res.json({
+        message: "Reservation router working"
+    });
+});
 // Check availability
 reservationRouter.get("/availability", checkAvailability);
 
 // Create reservation
-reservationRouter.post("/", isAuthenticated, createReservation);
+reservationRouter.post("/",  isAuthenticated, createReservation);
+
 
 // Get logged-in user's reservations
 reservationRouter.get("/my", isAuthenticated, getUserReservations);
@@ -49,5 +56,6 @@ reservationRouter.patch(
   rejectReservation
 );
 
+console.log("Reservation routes loaded");
 
 module.exports = reservationRouter;

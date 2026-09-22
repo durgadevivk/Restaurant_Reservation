@@ -7,6 +7,7 @@ const isAuthenticated = async (req, res, next) => {
 
     // Get token from cookie
     const token = req.cookies && req.cookies.token;
+    console.log("Reservation/Auth token:", token);
 
     // No token
     if (!token) {

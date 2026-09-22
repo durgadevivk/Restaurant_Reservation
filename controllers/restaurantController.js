@@ -14,6 +14,9 @@ const restaurantController = {
         menu,
         openingHours,
         contactNumber,
+        dietaryOptions,
+        ambiance,
+        specialFeatures,
       } = req.body;
       if (
         !name ||
@@ -36,10 +39,13 @@ const restaurantController = {
         priceRange,
         totalTables,
         image,
+          dietaryOptions,
+      ambiance,
+      specialFeatures,
         menu: menu || [],
         openingHours: openingHours || "",
         contactNumber: contactNumber || "",
-         owner: req.userId
+        owner: req.userId,
       });
 
       await restaurant.save();
@@ -56,7 +62,9 @@ const restaurantController = {
   },
   GetAllRestaurants: async (req, res) => {
     try {
-      const { search, cuisine, location, priceRange } = req.query;
+      const { search, cuisine, location, priceRange,dietary,
+  ambiance,
+  specialFeatures, } = req.query;
 
       // Build filter object
       const filter = {};
@@ -89,7 +97,20 @@ const restaurantController = {
       if (priceRange) {
         filter.priceRange = priceRange;
       }
+// Filter by dietary option
+if (dietary) {
+  filter.dietaryOptions = dietary;
+}
 
+// Filter by ambiance
+if (ambiance) {
+  filter.ambiance = ambiance;
+}
+
+// Filter by special feature
+if (specialFeatures) {
+  filter.specialFeatures = specialFeatures;
+}
       const restaurants = await Restaurant.find(filter);
 
       return res.status(200).json({
@@ -123,27 +144,26 @@ const restaurantController = {
     }
   },
   getOwnerRestaurant: async (req, res) => {
-  try {
-    const restaurant = await Restaurant.findOne({
-      owner: req.userId
-    });
+    try {
+      const restaurant = await Restaurant.findOne({
+        owner: req.userId,
+      });
 
-    if (!restaurant) {
-      return res.status(404).json({
-        message: "Restaurant not found for this owner"
+      if (!restaurant) {
+        return res.status(404).json({
+          message: "Restaurant not found for this owner",
+        });
+      }
+
+      return res.status(200).json({
+        restaurant,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        error: error.message,
       });
     }
-
-    return res.status(200).json({
-      restaurant
-    });
-
-  } catch (error) {
-    return res.status(500).json({
-      error: error.message
-    });
-  }
-},
+  },
   updateRestaurant: async (req, res) => {
     try {
       const { id } = req.params;
