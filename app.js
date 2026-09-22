@@ -15,7 +15,8 @@ app.use(cookieParser());
 app.use(express.json());
 //for cros origins
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin:['http://localhost:5173',
+    'https://fe-restaurant.netlify.app'],
     credentials: true
 }));
 //configure Routes
