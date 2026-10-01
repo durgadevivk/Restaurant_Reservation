@@ -36,7 +36,7 @@ const authController = {
                 parseInt(SALT_ROUNDS)
             );
 
-            // Create user
+            // Create user  
             const newUser = new User({
                 name,
                 email,
@@ -51,6 +51,7 @@ const authController = {
             });
 
         } catch (e) {
+            console.error("REGISTER ERROR:", e);
             return res.status(500).json({
                 error: e.message
             });
