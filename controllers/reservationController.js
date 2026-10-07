@@ -1,6 +1,14 @@
 const Reservation = require("../models/reservation");
 const Restaurant = require("../models/restaurant");
+const isReservationPast = (reservation) => {
+  const reservationDate = new Date(reservation.date);
 
+  const [hours, minutes] = reservation.time.split(":").map(Number);
+
+  reservationDate.setHours(hours, minutes, 0, 0);
+
+  return reservationDate < new Date();
+};
 const reservationController = {
   //check Availability
   checkAvailability: async (req, res) => {
@@ -127,41 +135,63 @@ const reservationController = {
     }
   },
   // Cancel reservation
-  cancelReservation: async (req, res) => {
-    try {
-      const reservation = await Reservation.findOne({
-        _id: req.params.id,
-        user: req.userId,
-      });
+ cancelReservation: async (req, res) => {
+  try {
+    const reservation = await Reservation.findOne({
+      _id: req.params.id,
+      user: req.userId,
+    });
 
-      if (!reservation) {
-        return res.status(404).json({
-          message: "Reservation not found",
-        });
-      }
-
-      reservation.status = "cancelled";
-
-      await reservation.save();
-
-      res.status(200).json({
-        message: "Reservation cancelled successfully",
-        reservation,
-      });
-    } catch (error) {
-      res.status(500).json({
-        message: "Failed to cancel reservation",
-        error: error.message,
+    if (!reservation) {
+      return res.status(404).json({
+        message: "Reservation not found",
       });
     }
-  },
+
+    // Cannot cancel already cancelled reservation
+    if (reservation.status === "cancelled") {
+      return res.status(400).json({
+        message: "Reservation is already cancelled",
+      });
+    }
+
+    // Cannot cancel rejected reservation
+    if (reservation.status === "rejected") {
+      return res.status(400).json({
+        message: "Rejected reservation cannot be cancelled",
+      });
+    }
+
+    // Cannot cancel a past reservation
+    if (isReservationPast(reservation)) {
+      return res.status(400).json({
+        message: "Past reservations cannot be cancelled",
+      });
+    }
+
+    reservation.status = "cancelled";
+
+    await reservation.save();
+
+    res.status(200).json({
+      message: "Reservation cancelled successfully",
+      reservation,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to cancel reservation",
+      error: error.message,
+    });
+  }
+},
+
   //update reservation
   updateReservation: async (req, res) => {
   try {
     const { date, time, partySize } = req.body;
 
-    // Validate input
-    if (!date || !time || !partySize) {
+     if (!date || !time || !partySize) {
       return res.status(400).json({
         message: "Date, time and party size are required",
       });
@@ -178,10 +208,24 @@ const reservationController = {
       });
     }
 
-    // Do not allow updating cancelled reservation
+    // Cannot update cancelled reservation
     if (reservation.status === "cancelled") {
       return res.status(400).json({
         message: "Cancelled reservation cannot be updated",
+      });
+    }
+
+    // Cannot update rejected reservation
+    if (reservation.status === "rejected") {
+      return res.status(400).json({
+        message: "Rejected reservation cannot be updated",
+      });
+    }
+
+    // Cannot update past reservation
+    if (isReservationPast(reservation)) {
+      return res.status(400).json({
+        message: "Past reservations cannot be updated",
       });
     }
 

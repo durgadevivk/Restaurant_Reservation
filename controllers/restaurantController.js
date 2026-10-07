@@ -165,50 +165,80 @@ if (specialFeatures) {
     }
   },
   updateRestaurant: async (req, res) => {
-    try {
-      const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-      const restaurant = await Restaurant.findByIdAndUpdate(id, req.body, {
-        new: true,
-        runValidators: true,
-      });
+    const restaurant = await Restaurant.findOne({
+      _id: id,
+      owner: req.userId,
+    });
 
-      if (!restaurant) {
-        return res.status(404).json({
-          message: "Restaurant not found",
-        });
-      }
-
-      return res.status(200).json({
-        message: "Restaurant updated successfully",
-        restaurant,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        error: error.message,
+    if (!restaurant) {
+      return res.status(404).json({
+        message: "Restaurant not found or you are not the owner",
       });
     }
-  },
-  deleteRestaurant: async (req, res) => {
-    try {
-      const { id } = req.params;
 
-      const restaurant = await Restaurant.findByIdAndDelete(id);
+    const allowedFields = [
+      "name",
+      "description",
+      "cuisine",
+      "location",
+      "priceRange",
+      "totalTables",
+      "image",
+      "menu",
+      "openingHours",
+      "contactNumber",
+      "dietaryOptions",
+      "ambiance",
+      "specialFeatures",
+    ];
 
-      if (!restaurant) {
-        return res.status(404).json({
-          message: "Restaurant not found",
-        });
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        restaurant[field] = req.body[field];
       }
+    });
 
-      return res.status(200).json({
-        message: "Restaurant deleted successfully",
-      });
-    } catch (error) {
-      return res.status(500).json({
-        error: error.message,
+    await restaurant.save();
+
+    return res.status(200).json({
+      message: "Restaurant updated successfully",
+      restaurant,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+},
+
+deleteRestaurant: async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const restaurant = await Restaurant.findOne({
+      _id: id,
+      owner: req.userId,
+    });
+
+    if (!restaurant) {
+      return res.status(404).json({
+        message: "Restaurant not found or you are not the owner",
       });
     }
-  },
+
+    await Restaurant.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      message: "Restaurant deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+},
 };
 module.exports = restaurantController;

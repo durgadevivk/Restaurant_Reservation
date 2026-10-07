@@ -78,7 +78,11 @@ specialFeatures: {
       description: {
         type: String,
         default: ""
-      }
+      },
+      image: {
+        type: String,
+        default: "",
+      },
     }
   ],
   default: []
