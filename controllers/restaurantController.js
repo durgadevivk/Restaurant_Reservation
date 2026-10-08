@@ -168,14 +168,22 @@ if (specialFeatures) {
   try {
     const { id } = req.params;
 
-    const restaurant = await Restaurant.findOne({
-      _id: id,
-      owner: req.userId,
-    });
+    let restaurant;
+
+    if (req.user.role === "admin") {
+      // Admin can update any restaurant
+      restaurant = await Restaurant.findById(id);
+    } else {
+      // Restaurant owner can update only their own restaurant
+      restaurant = await Restaurant.findOne({
+        _id: id,
+        owner: req.userId,
+      });
+    }
 
     if (!restaurant) {
       return res.status(404).json({
-        message: "Restaurant not found or you are not the owner",
+        message: "Restaurant not found or you are not authorized",
       });
     }
 
@@ -213,19 +221,26 @@ if (specialFeatures) {
     });
   }
 },
-
 deleteRestaurant: async (req, res) => {
   try {
     const { id } = req.params;
 
-    const restaurant = await Restaurant.findOne({
-      _id: id,
-      owner: req.userId,
-    });
+    let restaurant;
+
+    if (req.user.role === "admin") {
+      // Admin can delete any restaurant
+      restaurant = await Restaurant.findById(id);
+    } else {
+      // Owner can delete only their own restaurant
+      restaurant = await Restaurant.findOne({
+        _id: id,
+        owner: req.userId,
+      });
+    }
 
     if (!restaurant) {
       return res.status(404).json({
-        message: "Restaurant not found or you are not the owner",
+        message: "Restaurant not found or you are not authorized",
       });
     }
 

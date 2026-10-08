@@ -5,11 +5,13 @@ const {
   getRestaurantReviews,
   updateReview,
   deleteReview,
-  ownerResponse
+  ownerResponse,
+  getAllReviews,
+  adminDeleteReview
 } = require("../controllers/reviewController.js");
 
 const {
-  isAuthenticated
+  isAuthenticated,allowRoles
 } = require("../middlewares/auth.js");
 
 const reviewRouter = express.Router();
@@ -45,6 +47,19 @@ reviewRouter.patch(
   "/:id/owner-response",
   isAuthenticated,
   ownerResponse
+);
+// Admin: Get all reviews
+reviewRouter.get(
+  "/admin/all",
+  isAuthenticated, allowRoles(["admin"]),
+  getAllReviews
+);
+
+// Admin: Delete any review
+reviewRouter.delete(
+  "/admin/:id",
+  isAuthenticated, allowRoles(["admin"]),
+  adminDeleteReview
 );
 
 module.exports = reviewRouter;

@@ -176,6 +176,46 @@ const reviewController = {
     });
   }
 },
+// Admin: Get all reviews
+getAllReviews: async (req, res) => {
+  try {
+    const reviews = await Review.find()
+      .populate("user", "name email")
+      .populate("restaurant", "name")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      reviews
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch all reviews",
+      error: error.message
+    });
+  }
+},
+
+// Admin: Delete any review
+adminDeleteReview: async (req, res) => {
+  try {
+    const review = await Review.findByIdAndDelete(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({
+        message: "Review not found"
+      });
+    }
+
+    res.status(200).json({
+      message: "Review deleted successfully"
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete review",
+      error: error.message
+    });
+  }
+},
 
 };
 
