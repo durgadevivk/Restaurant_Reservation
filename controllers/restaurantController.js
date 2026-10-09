@@ -1,5 +1,9 @@
 const Restaurant = require("../models/restaurant.js");
+const cloudinary = require("../config/cloudinary.js");
+const mongoose = require("mongoose");
+const User = require("../models/user");
 const restaurantController = {
+  
   //creating the restaurant
   createRestaurant: async (req, res) => {
     try {
@@ -255,5 +259,61 @@ deleteRestaurant: async (req, res) => {
     });
   }
 },
+uploadRestaurantImage: async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Please select an image to upload",
+      });
+    }
+
+    let restaurant;
+
+    if (req.user.role === "admin") {
+      restaurant = await Restaurant.findById(req.params.id);
+    } else {
+      restaurant = await Restaurant.findOne({
+        _id: req.params.id,
+        owner: req.userId,
+      });
+    }
+const check = await Restaurant.collection.findOne({
+  _id: restaurant?._id,
+});
+
+console.log("Raw MongoDB document:", check);
+console.log("Mongoose restaurant owner:", restaurant?.owner);
+    if (!restaurant) {
+      return res.status(404).json({
+        message: "Restaurant not found or you are not authorized",
+      });
+    }
+
+    const imageData = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+    const result = await cloudinary.uploader.upload(imageData, {
+      folder: "restaurant-reservation",
+      resource_type: "image",
+    });
+console.log("Restaurant ID:", restaurant?._id);
+console.log("Restaurant owner:", restaurant?.owner);
+console.log("Restaurant image before save:", restaurant?.image);
+    restaurant.image = result.secure_url;
+    await restaurant.save();
+
+    return res.status(200).json({
+      message: "Restaurant image uploaded successfully",
+      restaurant,
+      image: result.secure_url,
+    });
+  } catch (error) {
+    console.error("Restaurant image upload failed:", error);
+
+    return res.status(500).json({
+      message: "Failed to upload restaurant image",
+    });
+  }
+},
+
 };
 module.exports = restaurantController;
